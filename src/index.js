@@ -192,7 +192,7 @@ class Game extends React.Component {
 
     componentDidMount() {
         document.addEventListener("keydown", (event) => {
-            if (event.key == "Enter") {
+            if (event.key === "Enter") {
                 // Prevent clicking focused buttons on 'Enter' clicks
                 event.preventDefault();
             }
