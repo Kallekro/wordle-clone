@@ -44,6 +44,7 @@ body {
     flex-direction: column;
     justify-content: center;
     padding: 25px;
+    position: relative;
 }
 
 .board-row {
@@ -69,6 +70,43 @@ body {
     user-select: none;
 }
 
+.keyboard {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0px;
+}
+
+.keyboard-row {
+    display: flex;
+    justify-content: center;
+}
+
+.key {
+    background: var(--color-tone-2);
+    color: var(--color-tone-1);
+    border: 1px solid #999;
+    font-size: 16px;
+    font-weight: bold;
+    margin-right: 7px;
+    margin-top: 7px;
+    padding: 0;
+    display: inline-flex;
+    justify-content: center;
+    vertical-align: middle;
+    align-items: center;
+    height: 55px;
+    width: 40px;
+    max-width: 40px;
+    user-select: none;
+    border-radius: 5px;
+}
+
+.key.big {
+    width: 70px;
+    max-width: 70px;
+}
+
 .correct {
     background: #6aaa64;
 }
@@ -79,4 +117,24 @@ body {
 
 .incorrect {
     background: var(--color-tone-3);
+}
+
+.solutionPopup {
+    position: absolute;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+    top: 8%;
+    text-align: center;
+}
+
+.solutionPopup .solutionText {
+    display: inline-block;
+    background-color: var(--color-tone-1);
+    color: var(--color-tone-7);
+    padding: 10pt;
+    border-radius: 5pt;
+    font-size: 16px;
+    font-weight: bold;
 }
