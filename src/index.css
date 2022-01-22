@@ -100,6 +100,7 @@ body {
     max-width: 40px;
     user-select: none;
     border-radius: 5px;
+    cursor:pointer;
 }
 
 .key.big {
@@ -108,15 +109,15 @@ body {
 }
 
 .correct {
-    background: #6aaa64;
+    background: #538d4e;
 }
 
 .partlyCorrect {
-    background: #c9b458;
+    background: #bf9f3b;
 }
 
 .incorrect {
-    background: var(--color-tone-3);
+    background: var(--color-tone-4);
 }
 
 .solutionPopup {
