@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import axios from "axios";
 import './index.css';
-import { words } from './data.js'
 
 function statusCodeToClass(status) {
     switch (status) {
@@ -123,63 +123,58 @@ class Game extends React.Component {
         }
         var usedCharacters = charMap(null);
 
-        var solution = words[Math.floor(Math.random()*words.length)];
-        var solutionCharCount = charMap(0);
-        for (var i=0; i<solution.length; i++) {
-            solutionCharCount[solution[i]] += 1;
-        }
-
         this.state = {
             guesses: guesses,
             currentRow: 0,
             currentCol: 0,
-            solution: solution,
-            solutionCharCount: solutionCharCount,
             results: results,
+            solution: null,
             usedCharacters: usedCharacters,
             solved: false,
         };
     }
 
-    checkWord(word) {
-        var results = this.state.results.slice();
-        var usedCharacters = Object.assign({}, this.state.usedCharacters);
-        var wordCharCount = charMap(0);
-        for (var i=0; i < word.length; i++) {
-            wordCharCount[word[i]] += 1;
-            if (word[i] === this.state.solution[i]) {
-                results[this.state.currentRow][i] = 2;
-                usedCharacters[word[i]] = 2;
-            } else if (this.state.solution.includes(word[i])) {
-                results[this.state.currentRow][i] = 1;
-                if (usedCharacters[word[i]] < 2) {
-                    usedCharacters[word[i]] = 1;
-                }
-            } else {
-                results[this.state.currentRow][i] = 0;
-                if (usedCharacters[word[i]] < 1) {
-                    usedCharacters[word[i]] = 0;
-                }
-            }
-        }
+    async checkWord(word) {
+        axios
+        .get("/api/check/?guess=" + word.join(''))
+        .then((resp) => {
+            const result = resp.data[0]['result']
+            const solved = resp.data[0]['solved']
 
-        for (var i=word.length-1; i >= 0; i--) {
-            if (results[this.state.currentRow][i] === 1 &&
-                wordCharCount[word[i]] > this.state.solutionCharCount[word[i]]) {
-                results[this.state.currentRow][i] = 0;
-                wordCharCount[word[i]] -= 1;
-            }
-        }
+            var results = this.state.results.slice();
+            results[this.state.currentRow] = result;
 
-        var solved = this.state.solved;
-        if (results[this.state.currentRow].every((x) => x === 2)) {
-            solved = true;
-        }
-        this.setState({
-            results: results,
-            usedCharacters: usedCharacters,
-            solved: solved,
-        });
+            var usedCharacters = Object.assign({}, this.state.usedCharacters);
+            for (var i=0; i<result.length; i++) {
+                usedCharacters[word[i]] = result[i];
+            }
+
+            const currentRow = this.state.currentRow += 1;
+            if (currentRow === 6) {
+                this.getSolution()
+                .then ((res) =>
+                    this.setState({solution: res})
+                )
+            }
+
+            this.setState({
+                results: results,
+                usedCharacters: usedCharacters,
+                solved: solved,
+                currentRow: currentRow,
+                currentCol: 0,
+            });
+        })
+        .catch((err) => console.log(err));
+    }
+
+    getSolution() {
+        return axios
+        .get("/api/solution")
+        .then((resp) => {
+            return resp.data[0]['solution'];
+        })
+        .catch((err) => console.log(err));
     }
 
     handleKeyPress(key) {
@@ -198,11 +193,8 @@ class Game extends React.Component {
                 guesses[currentRow][currentCol] = null;
             }
         } else if (keyUpper === "ENTER" && currentCol === 5) {
-            if (words.includes(guesses[currentRow].join(''))) {
-                this.checkWord(guesses[currentRow]);
-                currentRow += 1;
-                currentCol = 0;
-            }
+            this.checkWord(guesses[currentRow]);
+            return;
         }
 
         this.setState({

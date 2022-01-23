@@ -1,9 +1,10 @@
 from django.shortcuts import render
 
 # Create your views here.
-from rest_framework import viewsets
-from .serializers import GameSerializer, ResultSerializer, ResultList
+from rest_framework import viewsets, serializers
+from .serializers import GameSerializer, ResultSerializer, Result, SolutionSerializer
 from .models import Game
+from .word_data import words
 
 def get_char_count(word):
     char_count = {}
@@ -13,7 +14,11 @@ def get_char_count(word):
 
 def check_guess(guess, solution):
     if guess == None or len(guess) != len(solution):
-        return [0 for _ in range(len(solution))]
+        return Result([0 for _ in range(len(solution))], False, "Guess does not meet specifications.")
+
+    if guess.upper() not in words:
+        return Result([0 for _ in range(len(solution))], False, "Not in word list.")
+
     solution_char_count = get_char_count(solution)
     guess_char_count = get_char_count(guess)
     result = []
@@ -30,7 +35,7 @@ def check_guess(guess, solution):
             result[i] = 0
             guess_char_count[guess[i]] -= 1
 
-    return result
+    return Result(result, all(map(lambda x: x == 2, result)), "")
 
 class CheckWordView(viewsets.ModelViewSet):
     serializer_class = ResultSerializer
@@ -39,8 +44,12 @@ class CheckWordView(viewsets.ModelViewSet):
         guess = self.request.query_params.get('guess')
         solutionModel = Game.objects.order_by('-id')[0]
         result = check_guess(guess, solutionModel.solution)
-        queryset = [ResultList(result)]
+        queryset = [result]
         return queryset
+
+class SolutionView(viewsets.ModelViewSet):
+    serializer_class = SolutionSerializer
+    queryset = [Game.objects.order_by('-id')[0]]
 
 class GameView(viewsets.ModelViewSet):
     serializer_class = GameSerializer
