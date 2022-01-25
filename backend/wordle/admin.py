@@ -3,7 +3,7 @@ from django.contrib import admin
 from .models import Game
 
 class GameAdmin(admin.ModelAdmin):
-    list_display = ['solution']
+    list_display = ['solution', 'game_id']
 
 # Register your models here.
 

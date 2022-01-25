@@ -21,6 +21,7 @@ from wordle import views
 router = routers.DefaultRouter()
 router.register(r'check', views.CheckWordView, 'check')
 router.register(r'solution', views.SolutionView, 'solution')
+router.register(r'newgame', views.GameView, 'newgame')
 
 urlpatterns = [
     path('admin/', admin.site.urls),

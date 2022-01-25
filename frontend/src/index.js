@@ -212,6 +212,9 @@ class Game extends React.Component {
             }
             this.handleKeyPress(event.key);
         });
+        axios
+        .post('/api/newgame/', {})
+        .then((resp) => console.log(resp));
     }
 
     render() {

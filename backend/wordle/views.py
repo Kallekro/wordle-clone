@@ -2,7 +2,7 @@ from django.shortcuts import render
 
 # Create your views here.
 from rest_framework import viewsets, serializers
-from .serializers import GameSerializer, ResultSerializer, Result, SolutionSerializer
+from .serializers import GameSerializer, NewGameSerializer, ResultSerializer, Result, SolutionSerializer
 from .models import Game
 from .word_data import words
 
@@ -42,14 +42,30 @@ class CheckWordView(viewsets.ModelViewSet):
 
     def get_queryset(self):
         guess = self.request.query_params.get('guess')
-        solutionModel = Game.objects.order_by('-id')[0]
+        game_id = self.request.query_params.get('id')
+        solutionModel = Game.objects.filter(game_id=game_id)[0]
         result = check_guess(guess, solutionModel.solution)
         queryset = [result]
         return queryset
 
+
 class SolutionView(viewsets.ModelViewSet):
     serializer_class = SolutionSerializer
-    queryset = [Game.objects.order_by('-id')[0]]
+
+    def get_queryset(self):
+        game_id = self.request.query_params.get('id')
+        solutionModel = Game.objects.filter(game_id=game_id)[0]
+        queryset = [solutionModel]
+        return queryset
+
+
+class NewGameView(viewsets.ModelViewSet):
+    serializer_class = NewGameSerializer
+
+    def get_queryset(self):
+        solutionModel = Game.objects.create()
+        return [solutionModel]
+
 
 class GameView(viewsets.ModelViewSet):
     serializer_class = GameSerializer
