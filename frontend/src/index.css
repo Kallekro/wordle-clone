@@ -120,7 +120,7 @@ body {
     background: var(--color-tone-4);
 }
 
-.solutionPopup {
+.popup {
     position: absolute;
     margin-left: auto;
     margin-right: auto;
@@ -130,7 +130,7 @@ body {
     text-align: center;
 }
 
-.solutionPopup .solutionText {
+.popup .popupText {
     display: inline-block;
     background-color: var(--color-tone-1);
     color: var(--color-tone-7);
