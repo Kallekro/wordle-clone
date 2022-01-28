@@ -124,7 +124,7 @@ class Game extends React.Component {
         var usedCharacters = charMap(null);
 
         this.state = {
-            gameID: "f541dd72-4605-4b19-a5ab-411a77ce3538",
+            gameID: null,
             guesses: guesses,
             currentRow: 0,
             currentCol: 0,
@@ -132,7 +132,7 @@ class Game extends React.Component {
             usedCharacters: usedCharacters,
             solved: false,
             solution: null,
-            errorPopup: null,
+            message: null,
         };
 
         axios
@@ -147,12 +147,29 @@ class Game extends React.Component {
         return "/api/check/?id=" + this.state.gameID + "&guess=" + guess.join('')
     }
 
+    getWinningMessage(row) {
+        switch (row) {
+            case 0:
+                return "Lucky guess!";
+            case 1:
+                return "You're a champion!"
+            case 2:
+                return "Splendid!"
+            case 3:
+                return "Great!"
+            case 4:
+                return "Good work!"
+            case 5:
+                return "You made it!"
+        }
+    }
+
     async checkWord(word) {
         axios
         .get(this.guessURL(word))
         .then((resp) => {
             if (resp.data[0]['error'].length > 0) {
-                this.setState({errorPopup: "Not in word list."});
+                this.setState({message: "Not in word list."});
                 return;
             }
             const result = resp.data[0]['result']
@@ -164,6 +181,11 @@ class Game extends React.Component {
             var usedCharacters = Object.assign({}, this.state.usedCharacters);
             for (var i=0; i<result.length; i++) {
                 usedCharacters[word[i]] = result[i];
+            }
+
+            var message = null;
+            if (solved) {
+                message = this.getWinningMessage(this.state.currentRow);
             }
 
             const currentRow = this.state.currentRow += 1;
@@ -180,6 +202,7 @@ class Game extends React.Component {
                 solved: solved,
                 currentRow: currentRow,
                 currentCol: 0,
+                message: message,
             });
         })
         .catch((err) => console.log(err));
@@ -195,8 +218,8 @@ class Game extends React.Component {
     }
 
     handleKeyPress(key) {
-        if (this.state.errorPopup !== null) {
-            this.setState({errorPopup: null});
+        if (this.state.message !== null) {
+            this.setState({message: null});
         }
         const guesses = this.state.guesses.slice();
         var currentCol = this.state.currentCol;
@@ -237,8 +260,8 @@ class Game extends React.Component {
     render() {
         const solutionPopupElement = this.state.currentRow === 6 && !this.state.solved ?
             <Popup text={this.state.solution} /> : null;
-        const errorPopupElement = this.state.errorPopup !== null ?
-            <Popup text={this.state.errorPopup} /> : null;
+        const messagePopupElement = this.state.message !== null ?
+            <Popup text={this.state.message} /> : null;
         return (
             <div className='game'>
                 <Header/>
@@ -250,7 +273,7 @@ class Game extends React.Component {
                         currentCol={this.state.currentCol}
                     />
                     {solutionPopupElement}
-                    {errorPopupElement}
+                    {messagePopupElement}
                 </div>
                 <div className='keyboard'>
                     <Keyboard
