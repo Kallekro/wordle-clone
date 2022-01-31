@@ -109,7 +109,12 @@ class Keyboard extends React.Component {
 }
 
 function Popup(props) {
-    return <div className='popup'><div className='popupText'>{props.text}</div></div>
+    return (
+        <div className={'popup ' + (props.isShowingPopup ? "popup-shown" : "popup-hidden")}
+             onTransitionEnd={props.onTransitionEnd}>
+            <div className='popupText'>{props.text}</div>
+        </div>
+    )
 }
 
 class Game extends React.Component {
@@ -133,6 +138,7 @@ class Game extends React.Component {
             solved: false,
             solution: null,
             message: null,
+            isShowingPopup: false,
         };
 
         axios
@@ -154,14 +160,23 @@ class Game extends React.Component {
             case 1:
                 return "You're a champion!"
             case 2:
-                return "Splendid!"
+                return "Impressive!"
             case 3:
-                return "Great!"
+                return "Splendid!"
             case 4:
-                return "Good work!"
+                return "Good job!"
             case 5:
                 return "You made it!"
         }
+    }
+
+    popupMessage(text, timeout) {
+        this.setState({message: text, isShowingPopup: true});
+        setTimeout(() => {
+            this.setState({
+                isShowingPopup: false
+            });
+        }, timeout);
     }
 
     async checkWord(word) {
@@ -169,7 +184,7 @@ class Game extends React.Component {
         .get(this.guessURL(word))
         .then((resp) => {
             if (resp.data[0]['error'].length > 0) {
-                this.setState({message: "Not in word list."});
+                this.popupMessage("Not in word list.", 200);
                 return;
             }
             const result = resp.data[0]['result']
@@ -183,17 +198,14 @@ class Game extends React.Component {
                 usedCharacters[word[i]] = result[i];
             }
 
-            var message = null;
             if (solved) {
-                message = this.getWinningMessage(this.state.currentRow);
+                this.popupMessage(this.getWinningMessage(this.state.currentRow), 200);
             }
 
             const currentRow = this.state.currentRow += 1;
             if (currentRow === 6) {
                 this.getSolution()
-                .then ((res) =>
-                    this.setState({solution: res})
-                )
+                .then ((res) => this.popupMessage(res, 2000))
             }
 
             this.setState({
@@ -202,7 +214,6 @@ class Game extends React.Component {
                 solved: solved,
                 currentRow: currentRow,
                 currentCol: 0,
-                message: message,
             });
         })
         .catch((err) => console.log(err));
@@ -218,9 +229,6 @@ class Game extends React.Component {
     }
 
     handleKeyPress(key) {
-        if (this.state.message !== null) {
-            this.setState({message: null});
-        }
         const guesses = this.state.guesses.slice();
         var currentCol = this.state.currentCol;
         var currentRow = this.state.currentRow;
@@ -258,10 +266,6 @@ class Game extends React.Component {
     }
 
     render() {
-        const solutionPopupElement = this.state.currentRow === 6 && !this.state.solved ?
-            <Popup text={this.state.solution} /> : null;
-        const messagePopupElement = this.state.message !== null ?
-            <Popup text={this.state.message} /> : null;
         return (
             <div className='game'>
                 <Header/>
@@ -272,8 +276,7 @@ class Game extends React.Component {
                         currentRow={this.state.currentRow}
                         currentCol={this.state.currentCol}
                     />
-                    {solutionPopupElement}
-                    {messagePopupElement}
+                    <Popup text={this.state.message} isShowingPopup={this.state.isShowingPopup}/>
                 </div>
                 <div className='keyboard'>
                     <Keyboard
