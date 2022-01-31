@@ -52,22 +52,50 @@ body {
     justify-content: center;
 }
 
+.square-container {
+    background-color: transparent;
+    perspective: 1000px;
+    margin: 3px;
+}
+
 .square {
     background: var(--color-tone-7);
     color: var(--color-tone-1);
-    border: 1px solid #999;
-    font-size: 24px;
+    font-size: 24pt;
     font-weight: bold;
-    margin-right: 5px;
-    margin-top: 5px;
-    padding: 0;
-    display: inline-flex;
-    justify-content: center;
-    vertical-align: middle;
-    align-items: center;
-    height: 60px;
-    width: 60px;
     user-select: none;
+    transform-style: preserve-3d;
+    text-align: center;
+    line-height: 60px;
+}
+
+.square-inner {
+    border: 1px solid var(--color-tone-3);
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 1s;
+    transform-style: preserve-3d;
+    width: 60px;
+    height: 60px;
+}
+
+.square-container.revealed .square-inner {
+    transform: rotateX(-180deg);
+  }
+
+.square.front, .square.back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden; /* Safari */
+    backface-visibility: hidden;
+}
+
+.square.back {
+    color: white;
+    transform: rotateX(-180deg);
 }
 
 .keyboard {

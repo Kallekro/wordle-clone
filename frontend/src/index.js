@@ -36,7 +36,13 @@ class Header extends React.Component {
 
 function Square(props) {
     return (
-        <div className={'square ' + props.resultClass}>{props.value}</div>
+        <div className={'square-container ' + props.revealed}>
+            <div className='square-inner'>
+                <div className={'square front'}>{props.value}</div>
+                <div className={'square back ' + props.resultClass}>{props.value}</div>
+            </div>
+        </div>
+
     )
 }
 
@@ -51,7 +57,8 @@ class Board extends React.Component {
                 const idx = i*rowCount + j;
                 const character = this.props.guesses[i][j];
                 const res = this.props.results[i][j];
-                row.push(<Square value={character} resultClass={statusCodeToClass(res)} key={'cell' + idx}/>);
+                const revealed = this.props.revealedIdx > idx ? "revealed" : ""
+                row.push(<Square value={character} resultClass={statusCodeToClass(res)} revealed={revealed} key={'cell' + idx}/>);
             }
             rows.push(<div className="board-row" key={'boardrow' + i}>{row}</div>);
         }
@@ -139,6 +146,7 @@ class Game extends React.Component {
             solution: null,
             message: null,
             isShowingPopup: false,
+            revealedIdx: 0,
         };
 
         axios
@@ -179,6 +187,13 @@ class Game extends React.Component {
         }, timeout);
     }
 
+    revealTo(idx) {
+        if (this.state.revealedIdx < idx) {
+            setTimeout(() => { this.revealTo(idx) }, 200);
+            this.setState({ revealedIdx: this.state.revealedIdx + 1});
+        }
+    }
+
     async checkWord(word) {
         axios
         .get(this.guessURL(word))
@@ -187,6 +202,8 @@ class Game extends React.Component {
                 this.popupMessage("Not in word list.", 200);
                 return;
             }
+            this.revealTo((this.state.currentRow + 1) * 6);
+
             const result = resp.data[0]['result']
             const solved = resp.data[0]['solved']
 
@@ -275,6 +292,7 @@ class Game extends React.Component {
                         results={this.state.results}
                         currentRow={this.state.currentRow}
                         currentCol={this.state.currentCol}
+                        revealedIdx={this.state.revealedIdx}
                     />
                     <Popup text={this.state.message} isShowingPopup={this.state.isShowingPopup}/>
                 </div>
