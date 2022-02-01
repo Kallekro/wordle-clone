@@ -25,7 +25,7 @@ SECRET_KEY = 'XXXX'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['wordle-clone.azurewebsites.net']
+ALLOWED_HOSTS = ['wordle-clone.azurewebsites.net', 'localhost']
 
 
 # Application definition
@@ -51,6 +51,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -128,7 +129,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ORIGIN_WHITELIST = [
      'http://localhost:3000',
-     'http://icy-pebble-008f75f03.1.azurestaticapps.net/'
+     'http://icy-pebble-008f75f03.1.azurestaticapps.net'
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True

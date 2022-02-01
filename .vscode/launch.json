@@ -11,7 +11,7 @@
             "name": "Python: Django",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/backend/manage.py",
+            "program": "${workspaceFolder}/manage.py",
             "args": [
                 "runserver",
             ],

@@ -4,7 +4,7 @@ from .models import Game
 class GameSerializer(serializers.ModelSerializer):
     class Meta:
         model = Game
-        fields = ['game_id']
+        fields = ['game_id', 'solution']
 
 class Result:
     def __init__(self, result, solved, error):
@@ -24,4 +24,5 @@ class SolutionSerializer(serializers.Serializer):
     game_id = serializers.UUIDField()
 
 class NewGameSerializer(serializers.Serializer):
+    solution = serializers.CharField()
     game_id = serializers.UUIDField()

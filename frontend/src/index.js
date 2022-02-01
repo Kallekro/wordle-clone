@@ -3,6 +3,9 @@ import ReactDOM from 'react-dom';
 import axios from "axios";
 import './index.css';
 
+const API_BASE_URL = "//wordle-clone.azurewebsites.net"
+//const API_BASE_URL = "http://localhost:8000"
+
 function statusCodeToClass(status) {
     switch (status) {
         case 2:
@@ -150,16 +153,16 @@ class Game extends React.Component {
             paused: false,
         };
 
-        axios
-        .post('//wordle-clone.azurewebsites.net/api/newgame/', {})
-        .then((resp) => {
-            this.setState({gameID: resp.data["game_id"]})
+        fetch(API_BASE_URL  + '/api/newgame/', {method: "POST", body: ""})
+        .then(resp => resp.json())
+        .then(json => {
+            this.setState({gameID: json["game_id"], solution: json["solution"]})
         })
         .catch((err) => console.log(err));
     }
 
     guessURL(guess) {
-        return "//wordle-clone.azurewebsites.net/api/check/?id=" + this.state.gameID + "&guess=" + guess.join('')
+        return API_BASE_URL + "/api/check/?id=" + this.state.gameID + "&guess=" + guess.join('')
     }
 
     getWinningMessage(row) {
@@ -201,24 +204,24 @@ class Game extends React.Component {
             if (this.state.solved) {
                 this.popupMessage(this.getWinningMessage(this.state.currentRow), 200);
             } else if (this.state.currentRow === 6) {
-                this.getSolution().then ((res) => this.popupMessage(res, 2000))
+                this.popupMessage(this.state.solution, 2000)
             }
             this.setState({paused: false});
         }
     }
 
     async checkWord(word) {
-        axios
-        .get(this.guessURL(word))
-        .then((resp) => {
-            if (resp.data[0]['error'].length > 0) {
+        fetch(this.guessURL(word))
+        .then(resp => resp.json())
+        .then(json => {
+            if (json[0]['error'].length > 0) {
                 this.popupMessage("Not in word list.", 200);
                 return;
             }
             this.revealTo((this.state.currentRow + 1) * 6);
 
-            const result = resp.data[0]['result']
-            const solved = resp.data[0]['solved']
+            const result = json[0]['result']
+            const solved = json[0]['solved']
 
             var results = this.state.results.slice();
             results[this.state.currentRow] = result;
@@ -235,15 +238,6 @@ class Game extends React.Component {
                 currentRow: this.state.currentRow + 1,
                 currentCol: 0,
             });
-        })
-        .catch((err) => console.log(err));
-    }
-
-    getSolution() {
-        return axios
-        .get("//wordle-clone.azurewebsites.net/api/solution?id=" + this.state.gameID)
-        .then((resp) => {
-            return resp.data[0]['solution'];
         })
         .catch((err) => console.log(err));
     }
