@@ -127,6 +127,8 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ORIGIN_WHITELIST = [
-     'http://localhost:3000'
+     'http://localhost:3000',
+     'https://icy-pebble-008f75f03.1.azurestaticapps.net/'
 ]
+
 CORS_ALLOW_ALL_ORIGINS = True
