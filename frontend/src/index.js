@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import axios from "axios";
 import './index.css';
 
 const API_BASE_URL = "//wordle-clone.azurewebsites.net"
