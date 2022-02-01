@@ -147,6 +147,7 @@ class Game extends React.Component {
             message: null,
             isShowingPopup: false,
             revealedIdx: 0,
+            paused: false,
         };
 
         axios
@@ -166,7 +167,7 @@ class Game extends React.Component {
             case 0:
                 return "Lucky guess!";
             case 1:
-                return "You're a champion!"
+                return "Genius!"
             case 2:
                 return "Impressive!"
             case 3:
@@ -189,8 +190,18 @@ class Game extends React.Component {
 
     revealTo(idx) {
         if (this.state.revealedIdx < idx) {
+            this.setState({
+                revealedIdx: this.state.revealedIdx + 1,
+                paused: true
+            });
             setTimeout(() => { this.revealTo(idx) }, 200);
-            this.setState({ revealedIdx: this.state.revealedIdx + 1});
+        } else if (this.state.revealedIdx === idx) {
+            if (this.state.solved) {
+                this.popupMessage(this.getWinningMessage(this.state.currentRow), 200);
+            } else if (this.state.currentRow === 6) {
+                this.getSolution().then ((res) => this.popupMessage(res, 2000))
+            }
+            this.setState({paused: false});
         }
     }
 
@@ -215,21 +226,11 @@ class Game extends React.Component {
                 usedCharacters[word[i]] = result[i];
             }
 
-            if (solved) {
-                this.popupMessage(this.getWinningMessage(this.state.currentRow), 200);
-            }
-
-            const currentRow = this.state.currentRow += 1;
-            if (currentRow === 6) {
-                this.getSolution()
-                .then ((res) => this.popupMessage(res, 2000))
-            }
-
             this.setState({
                 results: results,
                 usedCharacters: usedCharacters,
                 solved: solved,
-                currentRow: currentRow,
+                currentRow: this.state.currentRow + 1,
                 currentCol: 0,
             });
         })
@@ -246,6 +247,7 @@ class Game extends React.Component {
     }
 
     handleKeyPress(key) {
+        if (this.state.paused) { return; }
         const guesses = this.state.guesses.slice();
         var currentCol = this.state.currentCol;
         var currentRow = this.state.currentRow;
