@@ -151,7 +151,7 @@ class Game extends React.Component {
         };
 
         axios
-        .post('http://localhost:8000/api/newgame/', {})
+        .post('http://wordle-clone.azurewebsites.net/api/newgame/', {})
         .then((resp) => {
             this.setState({gameID: resp.data["game_id"]})
         })
@@ -159,7 +159,7 @@ class Game extends React.Component {
     }
 
     guessURL(guess) {
-        return "/api/check/?id=" + this.state.gameID + "&guess=" + guess.join('')
+        return "http://wordle-clone.azurewebsites.net/api/check/?id=" + this.state.gameID + "&guess=" + guess.join('')
     }
 
     getWinningMessage(row) {
@@ -176,6 +176,8 @@ class Game extends React.Component {
                 return "Good job!"
             case 5:
                 return "You made it!"
+            default:
+                return "Hmm?"
         }
     }
 
@@ -239,7 +241,7 @@ class Game extends React.Component {
 
     getSolution() {
         return axios
-        .get("/api/solution?id=" + this.state.gameID)
+        .get("http://wordle-clone.azurewebsites.net/api/solution?id=" + this.state.gameID)
         .then((resp) => {
             return resp.data[0]['solution'];
         })
